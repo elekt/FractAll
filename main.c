@@ -10,75 +10,53 @@
 #include <SDL2/SDL.h>
 #include <unistd.h>
 
+#include "complex.h"
+#include "color.h"
+
 #define WIDTH 768
 #define HEIGHT 768
 
-int MAX_ITER = 128;
-
-typedef struct Complex {
-    double im;
-    double re;
-} Complex;
-
-typedef struct Color {
-    int R;
-    int G;
-    int B;
-} Color;
-
-
-Complex pixelToComplex(int x, int y, double xOffset, double yOffset, double zoomLevel){
-   Complex converted = {};
-   double heightRatio = zoomLevel * ((double)HEIGHT)/WIDTH;
-   converted.re = (x * (heightRatio / HEIGHT) - (heightRatio/2.0)) + xOffset;
-   converted.im = (y * (zoomLevel / WIDTH) - (zoomLevel/2.0)) + yOffset;
-   return converted;
-}
+int MAX_ITER = 2;
 
 /**
  * Mandelbrot set is the set of values of c in the complex plane for which the orbit of 0 under iteration of the quadratic map
  * zn + 1 = zn^2 + c
  * remains bounded.
  */
-Color** countMandelbrot(double zoomLevel, double xOffset, double yOffset){
+struct Color** countMandelbrot(double zoomLevel, double xOffset, double yOffset){
     int i, j;
-    Color** colors = (Color**) malloc(HEIGHT * sizeof(Color*));
+    struct  Color** colors = (struct Color**) malloc(HEIGHT * sizeof(Color*));
     for(i=0; i < HEIGHT; ++i){
-    	colors[i] = (Color*) malloc(WIDTH * sizeof(Color));
+    	colors[i] = (struct Color*) malloc(WIDTH * sizeof(struct Color));
     }
 
-	#pragma omp parallel shared(colors) private(i, j)
-    {
+	printf("iter: %d zoom: %f x: %f y= %f\n", MAX_ITER, zoomLevel, xOffset, yOffset);
 
-		#pragma omp sections nowait
-    	{
+	for(i = 0; i < HEIGHT; ++i){
+		for(j = 0; j < WIDTH; ++j){
+			struct Complex c = pixelToComplex(WIDTH, HEIGHT, i, j, xOffset, yOffset, zoomLevel);
 
-			for(i = 0; i < HEIGHT; ++i){
-				for(j = 0; j < WIDTH; ++j){
-					Complex c = pixelToComplex(i, j, xOffset, yOffset, zoomLevel);
+			int iter = 0;
+			struct Complex z = { 0.0, 0.0 };
 
-					int iter = 0;
-					Complex z = { 0.0, 0.0 };
-
-					#pragma omp section
-					while(iter < MAX_ITER && z.re*z.re - z.im*z.im < 4.0){
-						double tmp = z.re*z.re - z.im*z.im + c.re;
-						z.im = 2.0 * z.re * z.im + c.im;
-						z.re = tmp;
-						++iter;
-					}
-					colors[i][j] = *(Color*) malloc(sizeof(Color));
-					colors[i][j].R = 255 * (double)iter / MAX_ITER;
-					colors[i][j].G = 255 * (double)iter / MAX_ITER;
-					colors[i][j].B = 255 * (double)iter / MAX_ITER;
-				}
+			while(iter < MAX_ITER && z.re*z.re - z.im*z.im < 4.0){
+				double tmp = z.re*z.re - z.im*z.im + c.re;
+				z.im = 2.0 * z.re * z.im + c.im;
+				z.re = tmp;
+				++iter;
 			}
+
+			double colorRatio = (1 - (double)iter / MAX_ITER);
+			colors[i][j] = *(struct Color*) malloc(sizeof(struct Color));
+			colors[i][j].R = 255 * 1.15 * colorRatio;
+			colors[i][j].G = 255 * 0.56 * colorRatio;
+			colors[i][j].B = 255 * 1.7 *colorRatio;
 		}
     }
     return colors;
 }
 
-void drawMandelbrot(SDL_Surface* screenSurface, Color** mandelbrot) {
+void drawMandelbrot(SDL_Surface* screenSurface, struct Color** mandelbrot) {
 	int i, j;
 	for (i = 0; i < HEIGHT; ++i) {
 		for (j = 0; j < WIDTH; ++j) {
@@ -95,7 +73,7 @@ int main(){
 	double zoomLevel = 4.0;
 	double xOffset = 0.0;
 	double yOffset = 0.0;
-	Color** mandelbrot = countMandelbrot(zoomLevel, xOffset, yOffset);
+	struct Color** mandelbrot = countMandelbrot(zoomLevel, xOffset, yOffset);
 
 	SDL_Window* window = NULL;
 	SDL_Surface* screenSurface = NULL;
@@ -139,23 +117,19 @@ int main(){
 						yOffset -= deltaOffset;
 					} else if(event.key.keysym.sym == SDLK_q){
 						MAX_ITER *= 2;
-						printf("max iter: %d\n", MAX_ITER);
-					} else if(event.key.keysym.sym == SDLK_w){
+					} else if(event.key.keysym.sym == SDLK_w && MAX_ITER > 1){
 						MAX_ITER /= 2;
-						printf("max iter: %d\n", MAX_ITER);
 					}
 					mandelbrot = countMandelbrot(zoomLevel, xOffset, yOffset);
 					drawMandelbrot(screenSurface, mandelbrot);
 					SDL_UpdateWindowSurface( window );
-					// printf("zoom: %f x: %f y= %f\n", zoomLevel, xOffset, yOffset);
 				} else if(event.type == SDL_KEYUP){
 					isKeyDown = 0;
 				} else if(event.type == SDL_MOUSEBUTTONDOWN && !isKeyDown){
 					isKeyDown = 1;
-					Complex center = pixelToComplex(event.button.y, event.button.x, xOffset, yOffset, zoomLevel);
+					struct Complex center = pixelToComplex(WIDTH, HEIGHT, event.button.y, event.button.x, xOffset, yOffset, zoomLevel);
 					xOffset = center.re;
 					yOffset = center.im;
-					printf("zoom: %f x: %f y= %f\n", zoomLevel, xOffset, yOffset);
 					mandelbrot = countMandelbrot(zoomLevel, xOffset, yOffset);
 					drawMandelbrot(screenSurface, mandelbrot);
 					SDL_UpdateWindowSurface( window );
