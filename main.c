@@ -48,9 +48,12 @@ struct Color** countMandelbrot(double zoomLevel, double xOffset, double yOffset)
 
 			double colorRatio = (1 - (double)iter / MAX_ITER);
 			colors[i][j] = *(struct Color*) malloc(sizeof(struct Color));
-			colors[i][j].R = 255 * 1.15 * colorRatio;
-			colors[i][j].G = 255 * 0.56 * colorRatio;
-			colors[i][j].B = 255 * 1.7 *colorRatio;
+//			colors[i][j].R = 255 * 1.15 * colorRatio;
+//			colors[i][j].G = 255 * 0.56 * colorRatio;
+//			colors[i][j].B = 255 * 1.7 *colorRatio;
+			colors[i][j].R = iter % MAX_ITER;
+			colors[i][j].G = iter % MAX_ITER;
+			colors[i][j].B = iter % MAX_ITER;
 		}
     }
     return colors;
