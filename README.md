@@ -13,11 +13,16 @@ gcc *.c *.h -O0 -g3 -Wall -lSDL2 -lm -o FractAll
 Or you can use the IDE of your choice.
 
 <h2>Usage</h2>
-+ : zoom in
-- : zoom out
-q : increase the max iteration for 1 pixel
-w : decrease the max iteration for 1 pixel
+'+' : zoom in
+
+'-' : zoom out
+
+'q' : increase the max iteration for 1 pixel
+
+'w' : decrease the max iteration for 1 pixel
+
 arrows : moving the center
+
 left mouse click : make the center position
 
 ![Mandelbrot 0](http://i.imgur.com/HPrjmCJ.jpg)
