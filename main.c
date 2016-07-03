@@ -1,7 +1,25 @@
 /**
- * Fractal drawing application created by Elekes Tamás.
- * Features:
- * Usage:
+The MIT License (MIT)
+
+Copyright (c) 2016 Elekes Tamás
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 */
 
 #include <stdlib.h>
@@ -16,7 +34,7 @@
 #define WIDTH 768
 #define HEIGHT 768
 
-int MAX_ITER = 2;
+int MAX_ITER = 256;
 
 /**
  * Mandelbrot set is the set of values of c in the complex plane for which the orbit of 0 under iteration of the quadratic map
@@ -48,12 +66,12 @@ struct Color** countMandelbrot(double zoomLevel, double xOffset, double yOffset)
 
 			double colorRatio = (1 - (double)iter / MAX_ITER);
 			colors[i][j] = *(struct Color*) malloc(sizeof(struct Color));
-//			colors[i][j].R = 255 * 1.15 * colorRatio;
-//			colors[i][j].G = 255 * 0.56 * colorRatio;
-//			colors[i][j].B = 255 * 1.7 *colorRatio;
-			colors[i][j].R = iter % MAX_ITER;
-			colors[i][j].G = iter % MAX_ITER;
-			colors[i][j].B = iter % MAX_ITER;
+			colors[i][j].R = 255 * 1.15 * colorRatio;
+			colors[i][j].G = 255 * 0.56 * colorRatio;
+			colors[i][j].B = 255 * 1.7 *colorRatio;
+//			colors[i][j].R = iter % MAX_ITER;
+//			colors[i][j].G = iter % MAX_ITER;
+//			colors[i][j].B = iter % MAX_ITER;
 		}
     }
     return colors;
