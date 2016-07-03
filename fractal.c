@@ -22,12 +22,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "complex.h"
+#include "fractal.h"
 
-struct Complex pixelToComplex(int screenWidth, int screenHeight, int x, int y, double xOffset, double yOffset, double zoomLevel){
-   struct Complex converted = {};
-   double heightRatio = zoomLevel * ((double)screenHeight)/screenWidth;
-   converted.re = (x * (heightRatio / screenHeight) - (heightRatio/2.0)) + xOffset;
-   converted.im = (y * (zoomLevel / screenWidth) - (zoomLevel/2.0)) + yOffset;
-   return converted;
+int mandelbrot(Complex c, int max_iter){
+	int iter = 0;
+	struct Complex z = { 0.0, 0.0 };
+
+	while(iter < max_iter && z.re*z.re - z.im*z.im < 4.0){
+		double tmp = z.re*z.re - z.im*z.im + c.re;
+		z.im = 2.0 * z.re * z.im + c.im;
+		z.re = tmp;
+		++iter;
+	}
+	return iter;
 }
+
