@@ -1,3 +1,4 @@
+/**
 The MIT License (MIT)
 
 Copyright (c) 2016 Elekes Tamás
@@ -19,3 +20,20 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+*/
+
+#include "fractal.h"
+
+int mandelbrot(Complex c, int max_iter){
+	int iter = 0;
+	struct Complex z = { 0.0, 0.0 };
+
+	while(iter < max_iter && z.re*z.re - z.im*z.im < 4.0){
+		double tmp = z.re*z.re - z.im*z.im + c.re;
+		z.im = 2.0 * z.re * z.im + c.im;
+		z.re = tmp;
+		++iter;
+	}
+	return iter;
+}
+

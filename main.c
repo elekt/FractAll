@@ -29,6 +29,7 @@ SOFTWARE.
 #include <unistd.h>
 
 #include "complex.h"
+#include "fractal.h"
 #include "color.h"
 
 #define WIDTH 768
@@ -41,7 +42,7 @@ int MAX_ITER = 256;
  * zn + 1 = zn^2 + c
  * remains bounded.
  */
-struct Color** countMandelbrot(double zoomLevel, double xOffset, double yOffset){
+struct Color** countMandelbrot(fractalFun fun, double zoomLevel, double xOffset, double yOffset){
     int i, j;
     struct  Color** colors = (struct Color**) malloc(HEIGHT * sizeof(Color*));
     for(i=0; i < HEIGHT; ++i){
@@ -54,15 +55,7 @@ struct Color** countMandelbrot(double zoomLevel, double xOffset, double yOffset)
 		for(j = 0; j < WIDTH; ++j){
 			struct Complex c = pixelToComplex(WIDTH, HEIGHT, i, j, xOffset, yOffset, zoomLevel);
 
-			int iter = 0;
-			struct Complex z = { 0.0, 0.0 };
-
-			while(iter < MAX_ITER && z.re*z.re - z.im*z.im < 4.0){
-				double tmp = z.re*z.re - z.im*z.im + c.re;
-				z.im = 2.0 * z.re * z.im + c.im;
-				z.re = tmp;
-				++iter;
-			}
+			int iter = fun(c, MAX_ITER);
 
 			double colorRatio = (1 - (double)iter / MAX_ITER);
 			colors[i][j] = *(struct Color*) malloc(sizeof(struct Color));
@@ -94,7 +87,7 @@ int main(){
 	double zoomLevel = 4.0;
 	double xOffset = 0.0;
 	double yOffset = 0.0;
-	struct Color** mandelbrot = countMandelbrot(zoomLevel, xOffset, yOffset);
+	struct Color** mandelbrotColors = countMandelbrot(mandelbrot, zoomLevel, xOffset, yOffset);
 
 	SDL_Window* window = NULL;
 	SDL_Surface* screenSurface = NULL;
@@ -109,7 +102,7 @@ int main(){
 		} else {
 			screenSurface = SDL_GetWindowSurface( window );
 
-			drawMandelbrot(screenSurface, mandelbrot);
+			drawMandelbrot(screenSurface, mandelbrotColors);
 			SDL_UpdateWindowSurface( window );
 
 			int isKeyDown = 0;
@@ -141,8 +134,8 @@ int main(){
 					} else if(event.key.keysym.sym == SDLK_w && MAX_ITER > 1){
 						MAX_ITER /= 2;
 					}
-					mandelbrot = countMandelbrot(zoomLevel, xOffset, yOffset);
-					drawMandelbrot(screenSurface, mandelbrot);
+					mandelbrotColors = countMandelbrot(mandelbrot, zoomLevel, xOffset, yOffset);
+					drawMandelbrot(screenSurface, mandelbrotColors);
 					SDL_UpdateWindowSurface( window );
 				} else if(event.type == SDL_KEYUP){
 					isKeyDown = 0;
@@ -151,8 +144,8 @@ int main(){
 					struct Complex center = pixelToComplex(WIDTH, HEIGHT, event.button.y, event.button.x, xOffset, yOffset, zoomLevel);
 					xOffset = center.re;
 					yOffset = center.im;
-					mandelbrot = countMandelbrot(zoomLevel, xOffset, yOffset);
-					drawMandelbrot(screenSurface, mandelbrot);
+					mandelbrotColors = countMandelbrot(mandelbrot, zoomLevel, xOffset, yOffset);
+					drawMandelbrot(screenSurface, mandelbrotColors);
 					SDL_UpdateWindowSurface( window );
 				} else if(event.type == SDL_MOUSEBUTTONUP){
 					isKeyDown = 0;
