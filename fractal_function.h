@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef FRACTAL_H_
-#define FRACTAL_H_
+#ifndef FRACTAL_FUNCTION_H_
+#define FRACTAL_FUNCTION_H_
 
 #include "complex.h"
 
@@ -32,4 +32,4 @@ typedef int (*fractalFun)(Complex c, int max_iter);
 int mandelbrot(Complex c, int max_iter);
 
 
-#endif /* FRACTAL_H_ */
+#endif /* FRACTAL_FUNCTION_H_ */
