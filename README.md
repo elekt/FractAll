@@ -1,4 +1,4 @@
-<h1>FractAll - Mandelbrot renderer</h1>
+<h1>FractAll - Generic fractal renderer</h1>
 
 The mandelbrot set is a popular fractal based on a set of complex numbers.
 For info about it, please visit wikipedia.
