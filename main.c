@@ -37,19 +37,12 @@ SOFTWARE.
 
 int MAX_ITER = 256;
 
-/**
- * Mandelbrot set is the set of values of c in the complex plane for which the orbit of 0 under iteration of the quadratic map
- * zn + 1 = zn^2 + c
- * remains bounded.
- */
-struct Color** countMandelbrot(fractalFun fun, double zoomLevel, double xOffset, double yOffset){
+struct Color** countFractal(fractalFun fun, double zoomLevel, double xOffset, double yOffset){
     int i, j;
     struct  Color** colors = (struct Color**) malloc(HEIGHT * sizeof(Color*));
     for(i=0; i < HEIGHT; ++i){
     	colors[i] = (struct Color*) malloc(WIDTH * sizeof(struct Color));
     }
-
-	printf("iter: %d zoom: %f x: %f y= %f\n", MAX_ITER, zoomLevel, xOffset, yOffset);
 
 	for(i = 0; i < HEIGHT; ++i){
 		for(j = 0; j < WIDTH; ++j){
@@ -59,9 +52,11 @@ struct Color** countMandelbrot(fractalFun fun, double zoomLevel, double xOffset,
 
 			double colorRatio = (1 - (double)iter / MAX_ITER);
 			colors[i][j] = *(struct Color*) malloc(sizeof(struct Color));
-			colors[i][j].R = 255 * 1.15 * colorRatio;
-			colors[i][j].G = 255 * 0.56 * colorRatio;
-			colors[i][j].B = 255 * 1.7 *colorRatio;
+			colors[i][j].R = 255 * colorRatio;
+			colors[i][j].G = 255 * 0.8 * colorRatio;
+			colors[i][j].B = 255 * 0.8 * colorRatio;
+
+			// drawing with only grey colors
 //			colors[i][j].R = iter % MAX_ITER;
 //			colors[i][j].G = iter % MAX_ITER;
 //			colors[i][j].B = iter % MAX_ITER;
@@ -70,13 +65,13 @@ struct Color** countMandelbrot(fractalFun fun, double zoomLevel, double xOffset,
     return colors;
 }
 
-void drawMandelbrot(SDL_Surface* screenSurface, struct Color** mandelbrot) {
+void drawFractal(SDL_Surface* screenSurface, struct Color** fractal) {
 	int i, j;
 	for (i = 0; i < HEIGHT; ++i) {
 		for (j = 0; j < WIDTH; ++j) {
 			((Uint32*) screenSurface->pixels)[(i * screenSurface->w) + j] =
-					SDL_MapRGB(screenSurface->format, mandelbrot[i][j].R,
-							mandelbrot[i][j].G, mandelbrot[i][j].B);
+					SDL_MapRGB(screenSurface->format, fractal[i][j].R,
+							fractal[i][j].G, fractal[i][j].B);
 		}
 	}
 	((Uint32*) screenSurface->pixels)[(HEIGHT/2 * screenSurface->w) + WIDTH/2] =
@@ -87,7 +82,8 @@ int main(){
 	double zoomLevel = 4.0;
 	double xOffset = 0.0;
 	double yOffset = 0.0;
-	struct Color** mandelbrotColors = countMandelbrot(mandelbrot, zoomLevel, xOffset, yOffset);
+	fractalFun fractalFunction = mandelbrot;
+	struct Color** mandelbrotColors = countFractal(fractalFunction, zoomLevel, xOffset, yOffset);
 
 	SDL_Window* window = NULL;
 	SDL_Surface* screenSurface = NULL;
@@ -102,7 +98,7 @@ int main(){
 		} else {
 			screenSurface = SDL_GetWindowSurface( window );
 
-			drawMandelbrot(screenSurface, mandelbrotColors);
+			drawFractal(screenSurface, mandelbrotColors);
 			SDL_UpdateWindowSurface( window );
 
 			int isKeyDown = 0;
@@ -134,8 +130,8 @@ int main(){
 					} else if(event.key.keysym.sym == SDLK_w && MAX_ITER > 1){
 						MAX_ITER /= 2;
 					}
-					mandelbrotColors = countMandelbrot(mandelbrot, zoomLevel, xOffset, yOffset);
-					drawMandelbrot(screenSurface, mandelbrotColors);
+					mandelbrotColors = countFractal(fractalFunction, zoomLevel, xOffset, yOffset);
+					drawFractal(screenSurface, mandelbrotColors);
 					SDL_UpdateWindowSurface( window );
 				} else if(event.type == SDL_KEYUP){
 					isKeyDown = 0;
@@ -144,8 +140,8 @@ int main(){
 					struct Complex center = pixelToComplex(WIDTH, HEIGHT, event.button.y, event.button.x, xOffset, yOffset, zoomLevel);
 					xOffset = center.re;
 					yOffset = center.im;
-					mandelbrotColors = countMandelbrot(mandelbrot, zoomLevel, xOffset, yOffset);
-					drawMandelbrot(screenSurface, mandelbrotColors);
+					mandelbrotColors = countFractal(fractalFunction, zoomLevel, xOffset, yOffset);
+					drawFractal(screenSurface, mandelbrotColors);
 					SDL_UpdateWindowSurface( window );
 				} else if(event.type == SDL_MOUSEBUTTONUP){
 					isKeyDown = 0;
@@ -157,7 +153,7 @@ int main(){
 	}
 
 	//Destroy window
-	SDL_DestroyWindow( window );
+	SDL_DestroyWindow(window);
 
 	//Quit SDL subsystems
 	SDL_Quit();
