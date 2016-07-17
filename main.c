@@ -29,7 +29,7 @@ SOFTWARE.
 #include <unistd.h>
 
 #include "complex.h"
-#include "fractal.h"
+#include "fractal_function.h"
 #include "color.h"
 
 #define WIDTH 768

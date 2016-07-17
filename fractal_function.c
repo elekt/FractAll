@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "fractal.h"
+#include "fractal_function.h"
 
 int mandelbrot(Complex c, int max_iter){
 	int iter = 0;
